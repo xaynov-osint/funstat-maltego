@@ -5,8 +5,8 @@
 ![Transforms](https://img.shields.io/badge/transforms-21-orange)
 ![Maltego](https://img.shields.io/badge/Maltego-local%20transforms-purple?logo=maltego)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
-![GitHub stars](https://img.shields.io/github/stars/xaynov-osint/funstat-for-maltego?style=social)
-![GitHub issues](https://img.shields.io/github/issues/xaynov-osint/funstat-for-maltego)
+![GitHub stars](https://img.shields.io/github/stars/xaynov-osint/funstat-maltego?style=social)
+![GitHub issues](https://img.shields.io/github/issues/xaynov-osint/funstat-maltego)
 
 
 A set of local transforms for [Maltego](https://www.maltego.com/) built on top of the [`funstat-api`](https://pypi.org/project/funstat-api/) library — Telegram OSINT statistics (names, usernames, groups, messages, reputation, etc.) directly in the Maltego graph.
@@ -50,8 +50,8 @@ Users are returned as the built-in `maltego.affiliation.Telegram` entity (with t
 Requires Python 3.10+.
 
 ```bash
-git clone https://github.com/xaynov-osint/funstat-for-maltego
-cd funstat-for-maltego
+git clone https://github.com/xaynov-osint/funstat-maltego
+cd funstat-maltego
 python -m pip install -r requirements.txt
 ```
 
