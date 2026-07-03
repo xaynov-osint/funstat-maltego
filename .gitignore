@@ -1,0 +1,15 @@
+# Секреты
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Артефакты сборки
+*.mtz
+
+# Локальные настройки редактора/инструментов
+.claude/settings.local.json
