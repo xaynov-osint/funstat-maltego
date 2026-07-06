@@ -13,6 +13,8 @@ A set of local transforms for [Maltego](https://www.maltego.com/) built on top o
 
 All **21 methods** of the library are implemented as separate transforms using the official [`maltego-trx`](https://github.com/paterva/maltego-trx) framework.
 
+Special thanks to @chizumeiji for creating funstat-api, which power the data collection in this project.
+
 ---
 
 ## Features
