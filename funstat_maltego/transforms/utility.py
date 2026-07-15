@@ -1,4 +1,4 @@
-"""Служебные трансформы: ping и баланс аккаунта funstat."""
+"""Utility transforms: ping and funstat account balance."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from ..helpers import FunstatTransform, UIM_INFORM
 
 
 class FunstatPing(FunstatTransform):
-    """funstat.ping() — проверка доступности API. Вход: любая сущность."""
+    """funstat.ping() — check API availability. Input: any entity."""
 
     input_entity = E.PHRASE
 
@@ -15,7 +15,7 @@ class FunstatPing(FunstatTransform):
     def run(cls, fs, request, response):
         res = fs.ping()
         if res is None:
-            response.addUIMessage("Ping не вернул данных.", UIM_INFORM)
+            response.addUIMessage("Ping returned no data.", UIM_INFORM)
             return
         ent = response.addEntity(E.PHRASE, f"funstat ping: {res.responce_ping} ms")
         ent.addProperty("funstat.request_ping", "Request ping", "loose", str(res.request_ping))
@@ -27,7 +27,7 @@ class FunstatPing(FunstatTransform):
 
 
 class FunstatBalance(FunstatTransform):
-    """funstat.get_balance() — текущий баланс и стоимость запроса."""
+    """funstat.get_balance() — current balance and request cost."""
 
     input_entity = E.PHRASE
 
@@ -35,7 +35,7 @@ class FunstatBalance(FunstatTransform):
     def run(cls, fs, request, response):
         res = fs.get_balance()
         if res is None:
-            response.addUIMessage("Баланс не получен.", UIM_INFORM)
+            response.addUIMessage("Balance not received.", UIM_INFORM)
             return
         ent = response.addEntity(E.PHRASE, f"funstat balance: {res.current_ballance}")
         ent.addProperty("funstat.balance", "Balance", "loose", str(res.current_ballance))

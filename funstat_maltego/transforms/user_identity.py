@@ -1,4 +1,4 @@
-"""Трансформы идентификации пользователя: резолв, базовая инфа, имена, юзернеймы."""
+"""User identity transforms: resolve, basic info, names, usernames."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from ..helpers import (
 
 
 class FunstatResolveUsername(FunstatTransform):
-    """funstat.resolve_username() — @username → пользователи Telegram."""
+    """funstat.resolve_username() — @username → Telegram users."""
 
     input_entity = E.TG_USERNAME
 
@@ -22,14 +22,14 @@ class FunstatResolveUsername(FunstatTransform):
     def run(cls, fs, request, response):
         users = data_of(fs.resolve_username(request.Value)) or []
         if not users:
-            response.addUIMessage("Пользователь не найден.", UIM_INFORM)
+            response.addUIMessage("User not found.", UIM_INFORM)
             return
         for user in users:
             add_user(response, user)
 
 
 class FunstatBasicInfo(FunstatTransform):
-    """funstat.basic_info_by_id() — базовая инфа по одному или нескольким id."""
+    """funstat.basic_info_by_id() — basic info for one or several ids."""
 
     input_entity = E.TG_USER
 
@@ -39,14 +39,14 @@ class FunstatBasicInfo(FunstatTransform):
         payload = ids if len(ids) > 1 else request.Value
         users = data_of(fs.basic_info_by_id(payload)) or []
         if not users:
-            response.addUIMessage("Данные не найдены.", UIM_INFORM)
+            response.addUIMessage("No data found.", UIM_INFORM)
             return
         for user in users:
             add_user(response, user)
 
 
 class FunstatGetNames(FunstatTransform):
-    """funstat.get_names() — история отображаемых имён пользователя."""
+    """funstat.get_names() — history of the user's display names."""
 
     input_entity = E.TG_USER
 
@@ -54,7 +54,7 @@ class FunstatGetNames(FunstatTransform):
     def run(cls, fs, request, response):
         names = data_of(fs.get_names(request.Value)) or []
         if not names:
-            response.addUIMessage("Имена не найдены.", UIM_INFORM)
+            response.addUIMessage("No names found.", UIM_INFORM)
             return
         for item in names:
             ent = response.addEntity(E.PERSON_NAME, item.name)
@@ -64,7 +64,7 @@ class FunstatGetNames(FunstatTransform):
 
 
 class FunstatGetUsernames(FunstatTransform):
-    """funstat.get_usernames() — история @username пользователя."""
+    """funstat.get_usernames() — history of the user's @usernames."""
 
     input_entity = E.TG_USER
 
@@ -72,7 +72,7 @@ class FunstatGetUsernames(FunstatTransform):
     def run(cls, fs, request, response):
         usernames = data_of(fs.get_usernames(request.Value)) or []
         if not usernames:
-            response.addUIMessage("Юзернеймы не найдены.", UIM_INFORM)
+            response.addUIMessage("No usernames found.", UIM_INFORM)
             return
         for item in usernames:
             ent = response.addEntity(E.TG_USERNAME, item.name)
@@ -82,7 +82,7 @@ class FunstatGetUsernames(FunstatTransform):
 
 
 class FunstatUsernameUsage(FunstatTransform):
-    """funstat.username_usage() — кто/что использует данный @username сейчас и в прошлом."""
+    """funstat.username_usage() — who/what uses the given @username now and in the past."""
 
     input_entity = E.TG_USERNAME
 
@@ -90,7 +90,7 @@ class FunstatUsernameUsage(FunstatTransform):
     def run(cls, fs, request, response):
         usage = data_of(fs.username_usage(request.Value))
         if usage is None:
-            response.addUIMessage("Использование юзернейма не найдено.", UIM_INFORM)
+            response.addUIMessage("No username usage found.", UIM_INFORM)
             return
 
         for user in (usage.actual_users or []):

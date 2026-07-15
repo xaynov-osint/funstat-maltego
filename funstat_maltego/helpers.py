@@ -1,4 +1,4 @@
-"""Базовый класс трансформы, обработка ошибок и билдеры сущностей."""
+"""Transform base class, error handling and entity builders."""
 
 from __future__ import annotations
 
@@ -10,29 +10,29 @@ from maltego_trx.transform import DiscoverableTransform
 from .client import FunstatDependencyError, FunstatTokenError, open_client
 from . import entities as E
 
-# Типы UI-сообщений Maltego.
+# Maltego UI message types.
 UIM_PARTIAL = "PartialError"
 UIM_FATAL = "FatalError"
 UIM_INFORM = "Inform"
 
 
 # --------------------------------------------------------------------------- #
-# Базовый класс
+# Base class
 # --------------------------------------------------------------------------- #
 class FunstatTransform(DiscoverableTransform):
-    """Общий каркас: открывает клиента, ловит ошибки, делегирует в ``run``.
+    """Common scaffolding: opens the client, catches errors, delegates to ``run``.
 
-    Наследники обязаны реализовать classmethod ``run(cls, fs, request, response)``,
-    где ``fs`` — уже открытый ``FunstatClient``.
+    Subclasses must implement the classmethod ``run(cls, fs, request, response)``,
+    where ``fs`` is an already-opened ``FunstatClient``.
     """
 
-    # Тип входной сущности — только для документации/справки.
+    # Input entity type — for documentation/reference only.
     input_entity = E.PHRASE
 
     @classmethod
     def create_entities(cls, request: MaltegoMsg, response: MaltegoTransform) -> None:
-        # Если запуск с Telegram-сущности (maltego.affiliation.Telegram),
-        # предпочитаем её UID как точный идентификатор для API.
+        # If run from a Telegram entity (maltego.affiliation.Telegram),
+        # prefer its UID as the exact identifier for the API.
         try:
             uid = request.getProperty("affiliation.uid")
         except Exception:  # noqa: BLE001
@@ -41,7 +41,7 @@ class FunstatTransform(DiscoverableTransform):
             request.Value = str(uid).strip()
 
         if not request.Value or not request.Value.strip():
-            response.addUIMessage("Пустое входное значение.", UIM_PARTIAL)
+            response.addUIMessage("Empty input value.", UIM_PARTIAL)
             return
 
         try:
@@ -53,8 +53,8 @@ class FunstatTransform(DiscoverableTransform):
         try:
             with client as fs:
                 cls.run(fs, request, response)
-        except Exception as exc:  # noqa: BLE001 — трансформа не должна падать
-            response.addUIMessage(f"Ошибка funstat-api: {exc}", UIM_PARTIAL)
+        except Exception as exc:  # noqa: BLE001 — the transform must not crash
+            response.addUIMessage(f"funstat-api error: {exc}", UIM_PARTIAL)
 
     @classmethod
     def run(cls, fs, request: MaltegoMsg, response: MaltegoTransform) -> None:
@@ -62,23 +62,23 @@ class FunstatTransform(DiscoverableTransform):
 
 
 # --------------------------------------------------------------------------- #
-# Утилиты
+# Utilities
 # --------------------------------------------------------------------------- #
 def data_of(resp):
-    """Достать ``.data`` из ответа (или сам объект, если обёртки нет)."""
+    """Extract ``.data`` from the response (or the object itself if there's no wrapper)."""
     if resp is None:
         return None
     return getattr(resp, "data", resp)
 
 
 def parse_ids(raw: str) -> list[str]:
-    """Разобрать строку с несколькими id (через запятую/пробел/перевод строки)."""
+    """Parse a string with multiple ids (separated by comma/space/newline)."""
     parts = raw.replace(",", " ").replace(";", " ").split()
     return [p.strip() for p in parts if p.strip()]
 
 
 def slider_limit(request: MaltegoMsg, default: int = 20) -> int:
-    """Лимит результатов из ползунка Maltego (если задан)."""
+    """Result limit from the Maltego slider (if set)."""
     try:
         val = int(getattr(request, "Slider", 0) or 0)
         return val if val > 0 else default
@@ -91,10 +91,10 @@ def _str(value) -> str:
 
 
 def apply_props(entity, model, spec: Sequence[tuple[str, str, str]]):
-    """Навесить свойства из модели на сущность и собрать Detail View.
+    """Attach properties from the model to the entity and build the Detail View.
 
-    ``spec`` — последовательность кортежей ``(attr, field_id, display_name)``.
-    Отсутствующие/``None`` поля пропускаются.
+    ``spec`` is a sequence of tuples ``(attr, field_id, display_name)``.
+    Missing/``None`` fields are skipped.
     """
     lines: list[str] = []
     for attr, field_id, display in spec:
@@ -109,7 +109,7 @@ def apply_props(entity, model, spec: Sequence[tuple[str, str, str]]):
 
 
 # --------------------------------------------------------------------------- #
-# Билдеры сущностей из моделей funstat
+# Entity builders from funstat models
 # --------------------------------------------------------------------------- #
 _USER_SPEC = [
     ("id", "funstat.id", "ID"),
@@ -122,7 +122,7 @@ _USER_SPEC = [
     ("has_prem", "funstat.has_premium", "Premium"),
     ("is_user_active", "funstat.is_active", "Is active"),
     ("name", "funstat.name", "Name"),
-    # статистика (UserStatsMin / UserStats)
+    # statistics (UserStatsMin / UserStats)
     ("total_msg_count", "funstat.total_msg", "Total messages"),
     ("msg_in_groups_count", "funstat.msg_in_groups", "Messages in groups"),
     ("adm_in_groups", "funstat.adm_in_groups", "Admin in groups"),
@@ -157,8 +157,8 @@ def _user_value(model, fallback: str = "") -> str:
 def add_user(response: MaltegoTransform, model, value: str | None = None):
     entity = response.addEntity(E.TG_USER, value or _user_value(model))
     apply_props(entity, model, _USER_SPEC)
-    # Нативные поля Telegram-сущности: UID для точного резолва при повторных
-    # запусках трансформ по этому пользователю.
+    # Native fields of the Telegram entity: UID for exact resolution on repeat
+    # transform runs against this user.
     uid = getattr(model, "id", None) or getattr(model, "user_id", None)
     if uid is not None:
         entity.addProperty("affiliation.uid", "Telegram UID", "strict", str(uid))
@@ -177,7 +177,7 @@ _GROUP_SPEC = [
     ("is_scam", "funstat.is_scam", "Scam"),
     ("is_fake", "funstat.is_fake", "Fake"),
     ("has_photo", "funstat.has_photo", "Has photo"),
-    # UsrChatInfo-специфика
+    # UsrChatInfo-specific
     ("messages_count", "funstat.chat_msg_count", "Messages in chat"),
     ("last_message", "funstat.last_message", "Last message"),
     ("is_admin", "funstat.is_admin", "Is admin"),

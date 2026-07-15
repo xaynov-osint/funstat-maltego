@@ -1,4 +1,4 @@
-# Секреты
+# Secrets
 .env
 
 # Python
@@ -8,8 +8,8 @@ __pycache__/
 .venv/
 venv/
 
-# Артефакты сборки
+# Build artifacts
 *.mtz
 
-# Локальные настройки редактора/инструментов
+# Local editor/tooling settings
 .claude/settings.local.json

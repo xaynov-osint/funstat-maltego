@@ -1,4 +1,4 @@
-"""Трансформы статистики пользователя: stats, stats_min, счётчики, репутация."""
+"""User statistics transforms: stats, stats_min, counters, reputation."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from ..helpers import FunstatTransform, UIM_INFORM, add_user, apply_props, data_
 
 
 class FunstatStats(FunstatTransform):
-    """funstat.stats() — полная статистика пользователя."""
+    """funstat.stats() — full user statistics."""
 
     input_entity = E.TG_USER
 
@@ -15,17 +15,17 @@ class FunstatStats(FunstatTransform):
     def run(cls, fs, request, response):
         stats = data_of(fs.stats(request.Value))
         if stats is None:
-            response.addUIMessage("Статистика не найдена.", UIM_INFORM)
+            response.addUIMessage("Statistics not found.", UIM_INFORM)
             return
         ent = add_user(response, stats, value=request.Value)
-        # любимый чат — отдельным свойством
+        # favorite chat — as a separate property
         fav = getattr(stats, "favorite_chat", None)
         if fav is not None:
             ent.addProperty("funstat.favorite_chat", "Favorite chat", "loose", str(fav.title))
 
 
 class FunstatStatsMin(FunstatTransform):
-    """funstat.stats_min() — краткая статистика пользователя."""
+    """funstat.stats_min() — brief user statistics."""
 
     input_entity = E.TG_USER
 
@@ -33,13 +33,13 @@ class FunstatStatsMin(FunstatTransform):
     def run(cls, fs, request, response):
         stats = data_of(fs.stats_min(request.Value))
         if stats is None:
-            response.addUIMessage("Статистика не найдена.", UIM_INFORM)
+            response.addUIMessage("Statistics not found.", UIM_INFORM)
             return
         add_user(response, stats, value=request.Value)
 
 
 class FunstatMessagesCount(FunstatTransform):
-    """funstat.messages_count() — общее число сообщений пользователя."""
+    """funstat.messages_count() — total number of the user's messages."""
 
     input_entity = E.TG_USER
 
@@ -51,7 +51,7 @@ class FunstatMessagesCount(FunstatTransform):
 
 
 class FunstatGroupsCount(FunstatTransform):
-    """funstat.groups_count() — число групп пользователя."""
+    """funstat.groups_count() — number of the user's groups."""
 
     input_entity = E.TG_USER
 
@@ -63,7 +63,7 @@ class FunstatGroupsCount(FunstatTransform):
 
 
 class FunstatReputation(FunstatTransform):
-    """funstat.rep() — репутация пользователя (голоса, средние оценки)."""
+    """funstat.rep() — user reputation (votes, average ratings)."""
 
     input_entity = E.TG_USER
 
@@ -86,7 +86,7 @@ class FunstatReputation(FunstatTransform):
     def run(cls, fs, request, response):
         rep = fs.rep(request.Value)
         if rep is None:
-            response.addUIMessage("Репутация не найдена.", UIM_INFORM)
+            response.addUIMessage("Reputation not found.", UIM_INFORM)
             return
         ent = response.addEntity(E.TG_USER, request.Value)
         apply_props(ent, rep, cls._SPEC)

@@ -1,25 +1,25 @@
-"""Константы типов сущностей Maltego, используемых трансформами funstat.
+"""Constants for the Maltego entity types used by the funstat transforms.
 
-Кастомные типы (``funstat.*``) Maltego автоматически создаёт как placeholder
-при первом возврате локальной трансформой. При желании их можно оформить
-полноценно через Entity Manager (см. MALTEGO_SETUP.md).
+Custom types (``funstat.*``) are created automatically by Maltego as placeholders
+the first time a local transform returns them. If desired, they can be defined
+properly via the Entity Manager (see MALTEGO_SETUP.md).
 """
 
-# --- сущности ---
-# Пользователь Telegram — используем ВСТРОЕННУЮ сущность Maltego (иконка,
-# нативные поля affiliation.uid / person.name, цепочки трансформ).
+# --- entities ---
+# Telegram user — we use the BUILT-IN Maltego entity (icon, native
+# affiliation.uid / person.name fields, transform chaining).
 TG_USER = "maltego.affiliation.Telegram"
 
-# Тип(ы) входных сущностей, на которых должны появляться пользовательские
-# трансформы (context menu). Используется билдером mtz.
+# Input entity type(s) on which the custom transforms should appear
+# (context menu). Used by the mtz builder.
 USER_INPUT_ENTITIES = ["maltego.Phrase", "maltego.affiliation.Telegram"]
 
-# --- остальные кастомные сущности funstat ---
-TG_GROUP = "funstat.TelegramGroup"        # value = title или id группы/канала
-TG_MESSAGE = "funstat.TelegramMessage"    # value = текст/фрагмент сообщения
-TG_STICKER = "funstat.TelegramSticker"    # value = короткое имя стикерпака
-TG_USERNAME = "funstat.TelegramUsername"  # value = @username (историческое имя)
+# --- other custom funstat entities ---
+TG_GROUP = "funstat.TelegramGroup"        # value = title or id of the group/channel
+TG_MESSAGE = "funstat.TelegramMessage"    # value = message text/fragment
+TG_STICKER = "funstat.TelegramSticker"    # value = sticker pack short name
+TG_USERNAME = "funstat.TelegramUsername"  # value = @username (historical name)
 
-# --- встроенные сущности Maltego ---
-PHRASE = "maltego.Phrase"                  # скалярные результаты (счётчики, ping, баланс)
-PERSON_NAME = "maltego.Phrase"             # отображаемое имя пользователя
+# --- built-in Maltego entities ---
+PHRASE = "maltego.Phrase"                  # scalar results (counters, ping, balance)
+PERSON_NAME = "maltego.Phrase"             # user's display name

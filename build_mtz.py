@@ -1,14 +1,14 @@
-"""Генератор Maltego config-архива (.mtz) со всеми трансформами funstat.
+"""Generator for the Maltego config archive (.mtz) with all funstat transforms.
 
-Запуск:
+Run:
     python build_mtz.py
 
-Результат: funstat_maltego.mtz — импортируется через
+Result: funstat_maltego.mtz — imported via
 Maltego → Import → Import Configuration (.mtz).
 
-Все трансформы регистрируются под локальным сервером "Local", вход = maltego.Phrase
-(универсально: значение сущности = ID / @username / группа). Command/paths берутся
-из констант ниже — поправь, если Python или путь к проекту у тебя другие.
+All transforms are registered under the local "Local" server, input = maltego.Phrase
+(universal: the entity value = ID / @username / group). Command/paths are taken
+from the constants below — adjust them if your Python or project path differs.
 """
 
 from __future__ import annotations
@@ -18,8 +18,8 @@ import sys
 import zipfile
 from xml.sax.saxutils import escape
 
-# Пути определяются автоматически от текущего интерпретатора и расположения файла.
-# При необходимости можно переопределить через переменные окружения
+# Paths are detected automatically from the current interpreter and this file's location.
+# If needed, they can be overridden via the environment variables
 # FUNSTAT_PYTHON_EXE / FUNSTAT_PROJECT_DIR.
 PYTHON_EXE = os.environ.get("FUNSTAT_PYTHON_EXE", sys.executable)
 PROJECT_DIR = os.environ.get(
@@ -27,33 +27,33 @@ PROJECT_DIR = os.environ.get(
 )
 PROJECT_PY = os.path.join(PROJECT_DIR, "project.py")
 SET_NAME = "Funstat"
-# Входные сущности: обычная фраза + встроенная Telegram-сущность Maltego.
-# Трансформы будут доступны по ПКМ на обеих.
+# Input entities: a plain phrase + Maltego's built-in Telegram entity.
+# The transforms will be available via right-click on both.
 INPUT_ENTITIES = ["maltego.Phrase", "maltego.affiliation.Telegram"]
 
 # (transform_id, display_name, class_name, description)
 TRANSFORMS = [
-    ("funstat.ping", "Funstat: Ping", "FunstatPing", "Проверка доступности API"),
-    ("funstat.balance", "Funstat: Balance", "FunstatBalance", "Баланс и стоимость запроса"),
-    ("funstat.resolveusername", "Funstat: Resolve username", "FunstatResolveUsername", "@username -> пользователи"),
-    ("funstat.basicinfo", "Funstat: Basic info", "FunstatBasicInfo", "Базовая инфа по ID"),
-    ("funstat.statsmin", "Funstat: Stats (min)", "FunstatStatsMin", "Краткая статистика"),
-    ("funstat.stats", "Funstat: Stats", "FunstatStats", "Полная статистика"),
-    ("funstat.messagescount", "Funstat: Messages count", "FunstatMessagesCount", "Число сообщений"),
-    ("funstat.groupscount", "Funstat: Groups count", "FunstatGroupsCount", "Число групп"),
-    ("funstat.getmessages", "Funstat: Messages", "FunstatGetMessages", "Сообщения пользователя"),
-    ("funstat.getchats", "Funstat: Chats", "FunstatGetChats", "Чаты/группы пользователя"),
-    ("funstat.getnames", "Funstat: Names history", "FunstatGetNames", "История имён"),
-    ("funstat.getusernames", "Funstat: Usernames history", "FunstatGetUsernames", "История юзернеймов"),
-    ("funstat.reputation", "Funstat: Reputation", "FunstatReputation", "Репутация"),
-    ("funstat.commongroups", "Funstat: Common groups", "FunstatCommonGroups", "Пользователи с общими группами"),
-    ("funstat.getstickers", "Funstat: Stickers", "FunstatGetStickers", "Стикерпаки"),
-    ("funstat.getgifts", "Funstat: Gifts", "FunstatGetGifts", "Подарки"),
-    ("funstat.usernameusage", "Funstat: Username usage", "FunstatUsernameUsage", "Кто использует @username"),
-    ("funstat.commongroupsforusers", "Funstat: Common groups (multi)", "FunstatCommonGroupsForUsers", "Общие группы для набора id"),
-    ("funstat.groupinfo", "Funstat: Group info", "FunstatGroupInfo", "Карточка группы/канала"),
-    ("funstat.groupmembers", "Funstat: Group members", "FunstatGroupMembers", "Участники группы"),
-    ("funstat.searchtext", "Funstat: Search text", "FunstatSearchText", "Кто и где писал текст"),
+    ("funstat.ping", "Funstat: Ping", "FunstatPing", "Check API availability"),
+    ("funstat.balance", "Funstat: Balance", "FunstatBalance", "Balance and request cost"),
+    ("funstat.resolveusername", "Funstat: Resolve username", "FunstatResolveUsername", "@username -> users"),
+    ("funstat.basicinfo", "Funstat: Basic info", "FunstatBasicInfo", "Basic info by ID"),
+    ("funstat.statsmin", "Funstat: Stats (min)", "FunstatStatsMin", "Brief statistics"),
+    ("funstat.stats", "Funstat: Stats", "FunstatStats", "Full statistics"),
+    ("funstat.messagescount", "Funstat: Messages count", "FunstatMessagesCount", "Number of messages"),
+    ("funstat.groupscount", "Funstat: Groups count", "FunstatGroupsCount", "Number of groups"),
+    ("funstat.getmessages", "Funstat: Messages", "FunstatGetMessages", "User's messages"),
+    ("funstat.getchats", "Funstat: Chats", "FunstatGetChats", "User's chats/groups"),
+    ("funstat.getnames", "Funstat: Names history", "FunstatGetNames", "Name history"),
+    ("funstat.getusernames", "Funstat: Usernames history", "FunstatGetUsernames", "Username history"),
+    ("funstat.reputation", "Funstat: Reputation", "FunstatReputation", "Reputation"),
+    ("funstat.commongroups", "Funstat: Common groups", "FunstatCommonGroups", "Users with common groups"),
+    ("funstat.getstickers", "Funstat: Stickers", "FunstatGetStickers", "Sticker packs"),
+    ("funstat.getgifts", "Funstat: Gifts", "FunstatGetGifts", "Gifts"),
+    ("funstat.usernameusage", "Funstat: Username usage", "FunstatUsernameUsage", "Who uses a @username"),
+    ("funstat.commongroupsforusers", "Funstat: Common groups (multi)", "FunstatCommonGroupsForUsers", "Common groups for a set of ids"),
+    ("funstat.groupinfo", "Funstat: Group info", "FunstatGroupInfo", "Group/channel card"),
+    ("funstat.groupmembers", "Funstat: Group members", "FunstatGroupMembers", "Group members"),
+    ("funstat.searchtext", "Funstat: Search text", "FunstatSearchText", "Who wrote a text and where"),
 ]
 
 
@@ -145,10 +145,10 @@ def main() -> None:
             z.writestr(f"TransformRepositories/Local/{tid}.transform", transform_xml(tid, display, desc))
             z.writestr(f"TransformRepositories/Local/{tid}.transformsettings", settings_xml(cls))
     print(f"OK: {out} ({len(TRANSFORMS)} transforms)")
-    print("Определённые пути (для ручной настройки в Maltego):")
+    print("Detected paths (for manual setup in Maltego):")
     print(f"  Command line      : {PYTHON_EXE}")
     print(f"  Working directory : {PROJECT_DIR}")
-    print(f"  Parameters (шаблон): {PROJECT_PY} local <ИмяКласса>")
+    print(f"  Parameters (template): {PROJECT_PY} local <ClassName>")
 
 
 if __name__ == "__main__":

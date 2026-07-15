@@ -1,20 +1,20 @@
-"""Точка входа maltego-trx для трансформ funstat.
+"""maltego-trx entry point for the funstat transforms.
 
-Локальный запуск одной трансформы (Maltego подаёт XML на stdin):
+Run a single transform locally (Maltego feeds XML to stdin):
     python project.py local FunstatStats
 
-Список доступных трансформ:
+List the available transforms:
     python project.py list
 
-Режим TDS/iTDS-сервера (требует flask; не обязателен для локальных трансформ):
+TDS/iTDS server mode (requires flask; not needed for local transforms):
     python project.py runserver
 """
 
 import sys
 
-# Форсируем UTF-8 для вывода: Maltego читает результат трансформы как UTF-8,
-# а Python на Windows по умолчанию печатает в кодировке консоли (cp1251),
-# из-за чего кириллица превращается в "?". Должно стоять до любого вывода.
+# Force UTF-8 for output: Maltego reads the transform result as UTF-8,
+# while Python on Windows prints in the console codepage (cp1251) by default,
+# which turns Cyrillic into "?". Must come before any output.
 for _stream in (sys.stdout, sys.stderr):
     try:
         _stream.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
@@ -25,9 +25,9 @@ from maltego_trx.registry import register_transform_function
 from maltego_trx.transform import DiscoverableTransform
 from maltego_trx.handler import handle_run
 
-# Импорт пакета с трансформами. Регистрируем каждый класс-наследник
-# DiscoverableTransform явно (в проекте несколько классов на модуль, поэтому
-# авто-обход register_transform_classes здесь не подходит).
+# Import the transforms package. Register each DiscoverableTransform subclass
+# explicitly (the project has several classes per module, so the
+# register_transform_classes auto-walk doesn't fit here).
 from funstat_maltego import transforms
 
 for _name in transforms.__all__:
@@ -35,7 +35,7 @@ for _name in transforms.__all__:
     if isinstance(_cls, type) and issubclass(_cls, DiscoverableTransform):
         register_transform_function(_cls)
 
-# Flask-приложение нужно только для runserver; для local-режима не обязательно.
+# The Flask app is only needed for runserver; not required for local mode.
 try:
     from maltego_trx.server import app
 except Exception:  # noqa: BLE001
@@ -45,7 +45,7 @@ except Exception:  # noqa: BLE001
 def _list_transforms():
     from maltego_trx.registry import mapping
 
-    print("Зарегистрированные трансформы funstat:")
+    print("Registered funstat transforms:")
     for name in sorted(mapping):
         print(f"  - {name}")
 

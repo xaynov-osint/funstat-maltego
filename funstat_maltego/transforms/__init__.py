@@ -1,7 +1,7 @@
-"""Экспорт всех трансформ funstat для авторегистрации в maltego-trx.
+"""Export of all funstat transforms for auto-registration in maltego-trx.
 
-``register_transform_classes(transforms)`` в project.py пройдётся по атрибутам
-этого пакета и подхватит все классы-наследники DiscoverableTransform.
+``register_transform_classes(transforms)`` in project.py walks the attributes
+of this package and picks up all DiscoverableTransform subclasses.
 """
 
 from .utility import FunstatPing, FunstatBalance

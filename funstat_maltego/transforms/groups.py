@@ -1,4 +1,4 @@
-"""Трансформы по группам/каналам: инфо о группе, участники, общие группы для набора id."""
+"""Group/channel transforms: group info, members, common groups for a set of ids."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from ..helpers import (
 
 
 class FunstatGroupInfo(FunstatTransform):
-    """funstat.get_group_info() — карточка группы/канала + дневная статистика."""
+    """funstat.get_group_info() — group/channel card + daily statistics."""
 
     input_entity = E.TG_GROUP
 
@@ -37,7 +37,7 @@ class FunstatGroupInfo(FunstatTransform):
     def run(cls, fs, request, response):
         res = fs.get_group_info(request.Value)
         if res is None or getattr(res, "info", None) is None:
-            response.addUIMessage("Группа не найдена.", UIM_INFORM)
+            response.addUIMessage("Group not found.", UIM_INFORM)
             return
         ent = add_group(response, res.info)
         stat = getattr(res, "today_group_stat", None)
@@ -46,7 +46,7 @@ class FunstatGroupInfo(FunstatTransform):
 
 
 class FunstatGroupMembers(FunstatTransform):
-    """funstat.get_group_members() — участники группы."""
+    """funstat.get_group_members() — group members."""
 
     input_entity = E.TG_GROUP
 
@@ -54,16 +54,16 @@ class FunstatGroupMembers(FunstatTransform):
     def run(cls, fs, request, response):
         members = data_of(fs.get_group_members(request.Value)) or []
         if not members:
-            response.addUIMessage("Участники не найдены.", UIM_INFORM)
+            response.addUIMessage("No members found.", UIM_INFORM)
             return
         for member in members:
             add_user(response, member)
 
 
 class FunstatCommonGroupsForUsers(FunstatTransform):
-    """funstat.common_groups_for_users() — общие группы для набора пользователей.
+    """funstat.common_groups_for_users() — common groups for a set of users.
 
-    Вход: сущность со значением из нескольких id/username (через запятую/пробел).
+    Input: an entity whose value is several ids/usernames (separated by comma/space).
     """
 
     input_entity = E.TG_USER
@@ -73,13 +73,13 @@ class FunstatCommonGroupsForUsers(FunstatTransform):
         ids = parse_ids(request.Value)
         if len(ids) < 2:
             response.addUIMessage(
-                "Нужно 2+ id/username (через запятую или пробел) во входном значении.",
+                "Need 2+ ids/usernames (separated by comma or space) in the input value.",
                 UIM_INFORM,
             )
             return
         groups = data_of(fs.common_groups_for_users(ids)) or []
         if not groups:
-            response.addUIMessage("Общих групп не найдено.", UIM_INFORM)
+            response.addUIMessage("No common groups found.", UIM_INFORM)
             return
         for group in groups:
             add_group(response, group)

@@ -1,4 +1,4 @@
-"""Трансформы активности: сообщения, чаты, стикеры, подарки, общие группы, поиск текста."""
+"""Activity transforms: messages, chats, stickers, gifts, common groups, text search."""
 
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from ..helpers import (
 
 
 class FunstatGetMessages(FunstatTransform):
-    """funstat.get_messages() — сообщения пользователя (+ группы, где они написаны)."""
+    """funstat.get_messages() — the user's messages (+ groups where they were posted)."""
 
     input_entity = E.TG_USER
 
@@ -23,7 +23,7 @@ class FunstatGetMessages(FunstatTransform):
         limit = slider_limit(request, 20)
         msgs = data_of(fs.get_messages(request.Value, limit=limit)) or []
         if not msgs:
-            response.addUIMessage("Сообщения не найдены.", UIM_INFORM)
+            response.addUIMessage("No messages found.", UIM_INFORM)
             return
         for msg in msgs:
             text = msg.text or f"[media #{msg.message_id}]"
@@ -41,7 +41,7 @@ class FunstatGetMessages(FunstatTransform):
 
 
 class FunstatGetChats(FunstatTransform):
-    """funstat.get_chats() — чаты/группы, где состоит пользователь."""
+    """funstat.get_chats() — chats/groups the user is a member of."""
 
     input_entity = E.TG_USER
 
@@ -49,10 +49,10 @@ class FunstatGetChats(FunstatTransform):
     def run(cls, fs, request, response):
         chats = data_of(fs.get_chats(request.Value)) or []
         if not chats:
-            response.addUIMessage("Чаты не найдены.", UIM_INFORM)
+            response.addUIMessage("No chats found.", UIM_INFORM)
             return
         for item in chats:
-            # UsrChatInfo: вложенный .chat + метрики на верхнем уровне
+            # UsrChatInfo: nested .chat + top-level metrics
             chat = getattr(item, "chat", item)
             ent = add_group(response, chat)
             for attr, fid, disp in [
@@ -67,7 +67,7 @@ class FunstatGetChats(FunstatTransform):
 
 
 class FunstatCommonGroups(FunstatTransform):
-    """funstat.common_groups() — пользователи, с которыми есть общие группы."""
+    """funstat.common_groups() — users with whom there are common groups."""
 
     input_entity = E.TG_USER
 
@@ -75,7 +75,7 @@ class FunstatCommonGroups(FunstatTransform):
     def run(cls, fs, request, response):
         users = data_of(fs.common_groups(request.Value)) or []
         if not users:
-            response.addUIMessage("Общие группы не найдены.", UIM_INFORM)
+            response.addUIMessage("No common groups found.", UIM_INFORM)
             return
         for user in users:
             ent = add_user(response, user)
@@ -85,7 +85,7 @@ class FunstatCommonGroups(FunstatTransform):
 
 
 class FunstatGetStickers(FunstatTransform):
-    """funstat.get_stickers() — стикерпаки, используемые пользователем."""
+    """funstat.get_stickers() — sticker packs used by the user."""
 
     input_entity = E.TG_USER
 
@@ -93,7 +93,7 @@ class FunstatGetStickers(FunstatTransform):
     def run(cls, fs, request, response):
         stickers = data_of(fs.get_stickers(request.Value)) or []
         if not stickers:
-            response.addUIMessage("Стикеры не найдены.", UIM_INFORM)
+            response.addUIMessage("No stickers found.", UIM_INFORM)
             return
         for st in stickers:
             value = st.short_name or st.title or str(st.sticker_set_id)
@@ -112,7 +112,7 @@ class FunstatGetStickers(FunstatTransform):
 
 
 class FunstatGetGifts(FunstatTransform):
-    """funstat.get_gifts() — подарки пользователя (отправители/получатели)."""
+    """funstat.get_gifts() — the user's gifts (senders/recipients)."""
 
     input_entity = E.TG_USER
 
@@ -121,7 +121,7 @@ class FunstatGetGifts(FunstatTransform):
         limit = slider_limit(request, 20)
         gifts = data_of(fs.get_gifts(request.Value, limit=limit)) or []
         if not gifts:
-            response.addUIMessage("Подарки не найдены.", UIM_INFORM)
+            response.addUIMessage("No gifts found.", UIM_INFORM)
             return
         for g in gifts:
             sender = response.addEntity(
@@ -142,7 +142,7 @@ class FunstatGetGifts(FunstatTransform):
 
 
 class FunstatSearchText(FunstatTransform):
-    """funstat.search_text() — кто и где писал заданный текст. Вход: maltego.Phrase."""
+    """funstat.search_text() — who wrote the given text and where. Input: maltego.Phrase."""
 
     input_entity = E.PHRASE
 
@@ -152,7 +152,7 @@ class FunstatSearchText(FunstatTransform):
         paged = data_of(fs.search_text(request.Value, page=1, page_size=page_size))
         rows = getattr(paged, "data", None) or []
         if not rows:
-            response.addUIMessage("Совпадений не найдено.", UIM_INFORM)
+            response.addUIMessage("No matches found.", UIM_INFORM)
             return
         for row in rows:
             text = row.text or f"[message #{row.message_id}]"
@@ -165,7 +165,7 @@ class FunstatSearchText(FunstatTransform):
             if row.group is not None:
                 ent.addProperty("funstat.group", "Group", "loose", str(row.group.title))
                 add_group(response, row.group)
-            # автор как отдельная сущность
+            # author as a separate entity
             author = response.addEntity(E.TG_USER, row.username or str(row.user_id))
             author.addProperty("funstat.id", "ID", "loose", str(row.user_id))
             if row.name:
